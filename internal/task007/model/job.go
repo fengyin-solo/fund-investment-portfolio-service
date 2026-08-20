@@ -6,4 +6,4 @@ type Job struct {
 }
 
 func New(id string) Job     { return Job{ID: id, State: "running", Version: 1} }
-func (j Job) Complete() Job { j.State = "succeeded"; return j }
+func (j Job) Complete() Job { j.Version++; j.State = "succeeded"; return j }

@@ -12,12 +12,15 @@ type Client struct {
 func New() *Client { return &Client{seen: map[string]bool{}} }
 func (c *Client) Execute(key string) error {
 	c.Calls++
-	if !c.seen[key] {
-		c.SideEffects++
+	if c.seen[key] {
+		// Already settled under this idempotency key: dedup the retry.
+		return nil
 	}
 	if c.Calls == 1 {
+		// Transient failure settles nothing; the caller retries the same key.
 		return ErrTemporary
 	}
 	c.seen[key] = true
+	c.SideEffects++
 	return nil
 }
