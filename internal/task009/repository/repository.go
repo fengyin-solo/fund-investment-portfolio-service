@@ -15,7 +15,7 @@ func (tx *Tx) Commit() {
 	if tx.done {
 		return
 	}
-	tx.repo.writes = append(tx.repo.writes, tx.key, tx.key)
+	tx.repo.writes = append(tx.repo.writes, tx.key)
 	tx.done = true
 }
 func (tx *Tx) Rollback()          { tx.done = true }

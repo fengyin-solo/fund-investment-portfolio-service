@@ -11,9 +11,17 @@ type Bus struct {
 
 func (b *Bus) Publish(key string) error {
 	b.Calls++
-	b.Delivered++
+	if b.accepted == nil {
+		b.accepted = make(map[string]bool)
+	}
+	// A retried publish of the same event must not be delivered twice.
+	if b.accepted[key] {
+		return nil
+	}
 	if b.Calls == 1 {
 		return ErrTemporary
 	}
+	b.accepted[key] = true
+	b.Delivered++
 	return nil
 }

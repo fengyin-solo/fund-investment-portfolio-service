@@ -15,19 +15,25 @@ type Settlement struct {
 
 func (s *Settlement) Run(key string) error {
 	s.Audit.Begin(key)
+
+	// The settlement write is durable and must happen exactly once: commit it
+	// before publishing, so a publish failure never re-opens the transaction.
+	tx := s.Repo.Begin(key)
+	tx.Commit()
+
+	// Only the unreliable event publish is retried. A stable, attempt-
+	// independent key makes retries idempotent (the same event, not a new one).
+	eventKey := fmt.Sprintf("settled:%s", key)
 	for attempt := 0; attempt < 2; attempt++ {
-		tx := s.Repo.Begin(key)
-		eventKey := fmt.Sprintf("settled:%s:%d", key, attempt)
 		if err := s.Bus.Publish(eventKey); err != nil {
-			tx.Rollback()
 			if attempt == 1 {
 				return err
 			}
 			continue
 		}
-		tx.Commit()
-		s.Audit.Complete(key)
-		return nil
+		break
 	}
+
+	s.Audit.Complete(key)
 	return nil
 }
