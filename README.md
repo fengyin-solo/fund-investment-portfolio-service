@@ -96,7 +96,7 @@ go run ./cmd/server
 | PUT | /api/dividends/{id} | 更新分红 |
 | DELETE | /api/dividends/{id} | 删除分红 |
 
-### Stats（报表统计）
+### Stats（聚合查询）
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/stats/holdings/{account_id} | 账户持仓汇总（按基金分组，含市值/成本/浮动盈亏） |
@@ -125,4 +125,4 @@ go test ./...
 
 测试覆盖：
 - Store CRUD + 冲突/不存在断言
-- Service 定投执行、余额不足 failed、赎回、计划状态机、报表统计、跨实体校验、分页、时间筛选
+- Service 定投执行、余额不足 failed、赎回、计划状态机、聚合查询、跨实体校验、分页、时间筛选
